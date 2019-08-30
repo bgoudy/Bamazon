@@ -1,26 +1,26 @@
 var mysql = require("mysql");
 var inquirer = require("inquirer");
-
+// connect to database
 var connection = mysql.createConnection({
   host: "localhost",
 
-  // Your port; if not 3306
   port: 3306,
 
-  // Your username
+  // username
   user: "root",
 
-  // Your password
+  // password
   password: "password",
   database: "bamazon"
 });
 
+  // connect to db
 connection.connect(function(err) {
   if (err) throw err;
   console.log("connected as id " + connection.threadId);
-  connection.end();
+  
   queryProducts();
-  //start();
+  start();
 });
 
 // Pull all product information from MySQL for user
@@ -30,17 +30,33 @@ function queryProducts() {
         for (var i = 0; i < res.length; i++) {
             console.log(res[i].item_id + "|" + res[i].product_name + "|" + res[i].department_name + "|" + res[i].price + "|" + res[i].stock_quantity);
         }
-        console.log("----------------------------------------")
-    })
+        /*console.log("----------------------------------------");*/
+        
+    });
 }
+
+
 function start(){
-  inquirer.prompt({
+  inquirer.prompt([
+  {
     name:"productID",
-    type:"list",
-    message:"What would you like to purchase?",
-    choices:["product_id", "product_name"] //How do I populate this from MySQL?
+    type:"input",
+    message:"Please enter the Product ID for purchase.",
+    // choices:["product_id", "product_name"] //How do I populate this from MySQL?
+    filter: Number
+  },
+  {
+    name: "quantity",
+    type: "input",
+    message: "Please enter the quantity for purchase.",
+    filter: Number
+  }
+  ]).then(function(answer){
+    //
   })
-}
+} 
 // Allow user to choose product for purchase
 
 // Ask user for purchase quantity
+
+//connection.end();
