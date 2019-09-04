@@ -34,24 +34,27 @@ function queryProducts() {
         
     });
 }
-start();
 
 
 
+//Function to prompt users to enter purchase information and pull product from inventory db
 function start(){
   inquirer.prompt([
+//Questions user about product they would like to buy
   {
     name:"productID",
     type:"input",
     message:"\n Please enter the Product ID for purchase. \n",
     filter: Number
   },
+//Questions user on the amount/quantity they would like to buy
   {
     name: "quantity",
     type: "input",
     message: "\n Please enter the quantity for purchase. \n",
     filter: Number
   }
+  //Queries db for product availability and pulls product from db inventory
   ]).then(function(answer) {
    /* var stock = stock_quantity;
     var id = item_id;
@@ -59,24 +62,30 @@ function start(){
     var dept = department_name;
     var price = price; */
 
-        connection.query("SELECT item_id, product_name, department_name, price, stock_quantity, FROM products WHERE ?", {item_id: answer.id}, function(err,res) {
-          console.log("\n You chose to purchase" + answer.products.stock_quantity + " " + res.products.item_id + " " + res.products.product_name + " " + res.products.department_name + " " + res.products.price);
+        connection.query("SELECT item_id, product_name, department_name, price, stock_quantity FROM products WHERE ?", {item_id: answer.productID}, function(err,res) {
+          if (err) throw err;
+          console.log("\n You chose to purchase " + answer.quantity + " " /*+ res[0].item_id + " " */+ res[0].product_name + " from " + res[0].department_name + " at $" + res[0].price + " per unit.");
 
-          if (res[0].stock >= answer.quantity) {
-            var quantityRem = res.stock - answer.products.stock_quantity;
-
+          if (res[0].stock_quantity >= answer.quantity) {
+            var quantityRem = res[0].stock_quantity - answer.quantity;
+            console.log(quantityRem);
+            //console.log(res.stock_quantity, answer.quantity);
             connection.query("UPDATE products SET ? WHERE ?", [
               {
                 stock_quantity: quantityRem
               },
               {
-                item_id: answer.id
+                item_id: answer.productID
               }
             ], function(err,res){
-
+              if (err) throw err;
+              //console.log(res);
+              var total = res.price * answer.stock_quantity;
+              console.log("\n Your total is $" + total.toFixed(2) + "\n")
+             
             });
-            var total = res.products.price * answer.stock_quantity;
-            console.log("\n Your total is $" + total.toFixed(2) + "\n")
+            
+            
           }
           else {
             console.log("\n Item out of stock. \n");
@@ -84,6 +93,8 @@ function start(){
         })
   })
 } 
+
+start();
 // Allow user to choose product for purchase
 
 // Ask user for purchase quantity
