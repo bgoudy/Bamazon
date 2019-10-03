@@ -54,6 +54,7 @@ function start(){
     message: "\n Please enter the quantity for purchase. \n",
     filter: Number
   }
+ 
   //Queries db for product availability and pulls product from db inventory
   ]).then(function(answer) {
    /* var stock = stock_quantity;
@@ -76,25 +77,46 @@ function start(){
               },
               {
                 item_id: answer.productID
-              }
+              },
+              {
+                price: res[0].price
+              },
             ], function(err,res){
               if (err) throw err;
               //console.log(res);
-              var total = res.price * answer.stock_quantity;
+              var total = answer.quantity * res.price;
               console.log("\n Your total is $" + total.toFixed(2) + "\n")
-             
+             customerPrompt();
             });
             
             
           }
           else {
             console.log("\n Item out of stock. \n");
+            customerPrompt();
           }
         })
   })
 } 
 
 start();
+
+ function customerPrompt() {
+  inquirer.prompt({
+    name: "action",
+    type: "list",
+    message: "Would you like to purchase anything else? \n",
+    choices: ["Yes", "No"]
+  }).then(function(answer){
+    switch(answer.action){
+      case 'Yes': displayForUser();
+        break;
+
+      case 'No': connection.end();
+        break;
+    }
+  })
+};
 // Allow user to choose product for purchase
 
 // Ask user for purchase quantity
